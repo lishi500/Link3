@@ -58,21 +58,25 @@ public class Board : MonoBehaviour
         StartCoroutine(ReleaseTileCoroutine());
     }
 
+    public IEnumerator MatchTilePath(List<Tile> tilePath) {
+        CalculateScore(tilePath);
+        List<GamePiece> gamePieces = TileUtils.Instance.GetPiecesByTileList(tilePath);
+        yield return StartCoroutine(ClearPieceList(gamePieces));
+        UnselectList(tilePath);
+    }
+
     IEnumerator ReleaseTileCoroutine() {
         m_isReleaseing = true;
         if (m_isSelecting)
         {
             if (m_selectedTile.Count > 2)
             {
-
-                CalculateScore();
-                List<GamePiece> gamePieces = TileUtils.Instance.GetPiecesByTileList(m_selectedTile);
-                yield return StartCoroutine(ClearPieceList(gamePieces));
-                UnselectList();
+                yield return StartCoroutine(MatchTilePath(m_selectedTile));
+                m_selectedTile.Clear();
             }
             else
             {
-                UnselectList();
+                UnselectList(m_selectedTile);
             }
             m_isSelecting = false;
         }
@@ -89,13 +93,13 @@ public class Board : MonoBehaviour
         CollapsePieces();
     }
 
-    void CalculateScore()
+    void CalculateScore(List<Tile> tiles)
     {
         int sum = 0;
-        for (int i = 1; i < m_selectedTile.Count + 1; i++) {
+        for (int i = 1; i < tiles.Count + 1; i++) {
             sum += i;
         }
-        GameController.Instance.AddScore(sum);
+        GameManager.Instance.AddScore(sum);
 
     }
 
@@ -142,12 +146,13 @@ public class Board : MonoBehaviour
         //LogSelectedList();
     }
 
-    void UnselectList() {
-        foreach (Tile tile in m_selectedTile)
-        {
-            tile.OnTileUnselected();
+    void UnselectList(List<Tile> tilePath) {
+        if (tilePath != null) {
+            foreach (Tile tile in tilePath)
+            {
+                tile.OnTileUnselected();
+            }
         }
-        m_selectedTile.Clear();
     }
     void RemoveTileSelected(Tile tile) {
         if (m_selectedTile.Contains(tile)) {
@@ -192,6 +197,14 @@ public class Board : MonoBehaviour
 
     public Tile[,] GetAllTiles() {
         return m_allTiles;
+    }
+
+    public Tile GetTile(int x, int y) {
+        if (IsWithinBounds(x, y)) {
+            return m_allTiles[x, y];
+        }
+
+        return null;
     }
 
     void ClearGamePiece(GamePiece piece) {
