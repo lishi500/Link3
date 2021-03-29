@@ -7,11 +7,15 @@ public class Tile : MonoBehaviour
     public int xIndex;
     public int yIndex;
     public bool visited = false;
+
+    // ----- restriction
+
     private Color m_originColor;
     private Color m_highLightColor = Color.yellow;
     Board m_board;
 
     public GamePiece piece;
+    public TileMask tileMask;
 
     public void OnTileSelected()
     {
@@ -22,21 +26,36 @@ public class Tile : MonoBehaviour
         GetComponent<SpriteRenderer>().color = m_originColor;
     }
 
-    private void OnMouseDown()
-    {
-        //m_board.ClickTile(this);
+    public bool CanLink() {
+        if (tileMask != null && !tileMask.CanMoveTile()) {
+            return false;
+        }
+
+        return true;
+    }
+
+   
+    private void OnMouseDown() {
+        m_board.ClickTile(this);
     }
 
     private void OnMouseUp()
     {
-        //m_board.ReleaseTile();
+        m_board.ReleaseTile();
+    }
+
+    private void OnMouseEnter() {
+        m_board.DragIntoTile(this);
     }
 
     private void OnMouseUpAsButton()
     {
-        //m_board.ClearPieceByTile(this);
-       List<Tile> bestPath = TileUtils.Instance.FindLongestMatchPath(this);
-        StartCoroutine(m_board.MatchTilePath(bestPath));
+        //AutoLinkSkill autoLink = new AutoLinkSkill();
+        //autoLink.Init(this);
+        //autoLink.Cast();
+        //BoardSkill verticalSkill = BoardSkillManager.Instance.GetBoardSkill(typeof(VerticalLinkSkill));
+        //verticalSkill.Init(this);
+        //StartCoroutine(verticalSkill.Cast());
     }
 
     // Start is called before the first frame update
@@ -50,6 +69,10 @@ public class Tile : MonoBehaviour
         xIndex = x;
         yIndex = y;
         m_board = board;
+    }
+
+    public void AddTileMask(TileMask mask) {
+
     }
 
     private void LateUpdate()

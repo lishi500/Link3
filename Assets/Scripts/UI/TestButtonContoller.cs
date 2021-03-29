@@ -13,7 +13,7 @@ public class TestButtonContoller : MonoBehaviour
     }
 
     public void TestFindAllLink() {
-        TileUtils.Instance.FindLongestMatchPath(board.GetTile(x, y));
+        //TileUtils.Instance.FindLongestMatchPath(board.GetTile(x, y));
     }
     // Start is called before the first frame update
     void Start()
