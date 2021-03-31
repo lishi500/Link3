@@ -191,6 +191,11 @@ public class Board : MonoBehaviour
         }
     }
 
+    public void ApplyTileMask(Tile tile, TileMask tileMask) {
+        tile.tileMask = tileMask;
+        tileMask.transform.position = tile.transform.position;
+    }
+
     public void UnsetTile(int x, int y) {
         m_allTiles[x, y].piece = null;
     }

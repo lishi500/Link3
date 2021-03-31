@@ -42,3 +42,21 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Background
+    uniqueID: 2244318831
+    locked: 0
+  - name: Board
+    uniqueID: 2493681213
+    locked: 0
+  - name: Tile
+    uniqueID: 440925087
+    locked: 0
+  - name: GamePiece
+    uniqueID: 1047050725
+    locked: 0
+  - name: TileMask
+    uniqueID: 3253626879
+    locked: 0
+  - name: New Layer
+    uniqueID: 1681365569
+    locked: 0
