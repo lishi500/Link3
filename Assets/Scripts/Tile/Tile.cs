@@ -78,10 +78,6 @@ public class Tile : MonoBehaviour
         m_board = board;
     }
 
-    public void AddTileMask(TileMask mask) {
-
-    }
-
     private void LateUpdate()
     {
         
