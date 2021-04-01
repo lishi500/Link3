@@ -23,6 +23,7 @@ public class Board : MonoBehaviour
     GamePiece[,] m_allGamePieces;
 
     List<Tile> m_selectedTile;
+    List<TileMask> m_liveMasks;
     bool m_isSelecting = false;
     bool m_isReleaseing = false;
 
@@ -191,9 +192,16 @@ public class Board : MonoBehaviour
         }
     }
 
-    public void ApplyTileMask(Tile tile, TileMask tileMask) {
-        tile.tileMask = tileMask;
-        tileMask.transform.position = tile.transform.position;
+    public void ApplyTileMask(Tile tile, TileMaskType maskType) {
+        TileMask tileMask = TileMaskUtil.Instance.CreateTileMask(maskType);
+        tile.ApplyMask(tileMask);
+        m_liveMasks.Add(tileMask);
+        tileMask.notifyTileMaskDestroy += OnTileMaskDestory;
+    }
+
+    public void OnTileMaskDestory(TileMask tileMask) {
+        tileMask.maskedTile.tileMask = null;
+        m_liveMasks.Remove(tileMask);
     }
 
     public void UnsetTile(int x, int y) {
@@ -253,6 +261,7 @@ public class Board : MonoBehaviour
         InitialCamera();
         m_allTiles = new Tile[width, height];
         m_allGamePieces = new GamePiece[width, height];
+        m_liveMasks = new List<TileMask>();
         SetupTiles();
         FillAllRandomPieces();
     }
