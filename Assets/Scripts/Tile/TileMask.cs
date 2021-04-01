@@ -19,6 +19,7 @@ public abstract class TileMask : MonoBehaviour {
 
     public TileMaskType maskType;
     public int maskLifeCounter;
+    // public TileMaskResponseType responseType;
     public bool canErase;
     public int EraseId;
     public bool isDestroying = false;
