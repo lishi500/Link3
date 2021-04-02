@@ -69,6 +69,7 @@ public class GamePiece : MonoBehaviour
         }
     }
 
+
     IEnumerator MoveRoutine(Vector3 destination, float timeToMove) {
         //Vector3 startPos = new Vector3(transform.position.x, transform.position.y + yOffSet);
         Vector3 startPos = transform.position;

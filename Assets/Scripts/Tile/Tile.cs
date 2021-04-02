@@ -40,7 +40,20 @@ public class Tile : MonoBehaviour
         mask.transform.parent = transform.parent;
         mask.maskedTile = this;
     }
-   
+
+    public void TriggerTileMask() {
+        if (tileMask != null && tileMask.canErase) {
+            tileMask.EraseOnce();
+        }
+    }
+
+    private void TriggerNeighbourTileMask() { 
+        if (m_board.hasMasks) {
+            List<Tile> neighbours = TileUtils.Instance.GetSurroundingTiles(this);
+            neighbours.ForEach(tile => tile.TriggerTileMask());
+        }
+    }
+
     private void OnMouseDown() {
         m_board.ClickTile(this);
     }
@@ -62,7 +75,7 @@ public class Tile : MonoBehaviour
         //BoardSkill verticalSkill = BoardSkillManager.Instance.GetBoardSkill(typeof(VerticalLinkSkill));
         //verticalSkill.Init(this);
         //StartCoroutine(verticalSkill.Cast());
-        m_board.ApplyTileMask(this, TileMaskType.Ice);
+        //m_board.ApplyTileMask(this, TileMaskType.Ice);
     }
 
     // Start is called before the first frame update

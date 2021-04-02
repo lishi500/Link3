@@ -36,6 +36,7 @@ public abstract class TileMask : MonoBehaviour {
     public abstract void OnRoundEnd();
 
     protected IEnumerator FadeOff() {
+        Debug.Log("TileMask FadeOff: " + xIndex + "," + yIndex);
         SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
         float startAlpha = spriteRenderer.color.a;
         float targetAlpha = 0;

@@ -15,6 +15,11 @@ public class TestButtonContoller : MonoBehaviour
     public void TestFindAllLink() {
         //TileUtils.Instance.FindLongestMatchPath(board.GetTile(x, y));
     }
+
+    public void TestAddIceMask() {
+        board.ApplyTileMask(board.GetTile(1, 3), TileMaskType.Ice);
+        board.ApplyTileMask(board.GetTile(4, 5), TileMaskType.Ice);
+    }
     // Start is called before the first frame update
     void Start()
     {

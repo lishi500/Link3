@@ -17,6 +17,11 @@ public class Board : MonoBehaviour
     public GameObject tilePrefab;
     public PieceType[] gamePieceTypes;
 
+    // -------------------- public method members --------------
+    public bool hasMasks {
+        get { return m_liveMasks != null && m_liveMasks.Count > 0; }
+    }
+
     // -------------------- Private members --------------
 
     Tile[,] m_allTiles;
@@ -26,7 +31,6 @@ public class Board : MonoBehaviour
     List<TileMask> m_liveMasks;
     bool m_isSelecting = false;
     bool m_isReleaseing = false;
-
     // first tile to Select
     public void ClickTile(Tile tile)
     {
