@@ -42,13 +42,32 @@ public class GamePiece : MonoBehaviour
         }
     }
 
+    public void MoveLeftDown() {
+        if (!m_isMoving) {
+            StartCoroutine(MoveRoutine(new Vector3(xIndex - 1, yIndex - 1, 0), Board.MOVE_TIME));
+        }
+    }
+
+    public void MoveRightDown() {
+        if (!m_isMoving) {
+            StartCoroutine(MoveRoutine(new Vector3(xIndex + 1, yIndex - 1, 0), Board.MOVE_TIME));
+        }
+    }
+
+    public override string ToString() {
+        return xIndex + "," + yIndex + " " + type;
+    }
+
     public IEnumerator DestroyPiece() {
         if (!m_isDestroying) {
+
             Vector3 startScale = transform.localScale;
             Vector3 targetScale = new Vector3(0.1f, 0.1f, 0.1f);
             bool reachTarget = false;
             float elapsedTime = 0f;
             m_isDestroying = true;
+
+            GetTile().TriggerNeighbourTileMask();
 
             while (!reachTarget)
             {
@@ -97,6 +116,10 @@ public class GamePiece : MonoBehaviour
         }
         m_isMoving = false;
 
+    }
+
+    private Tile GetTile() {
+        return m_board.GetTile(xIndex, yIndex);
     }
     // Start is called before the first frame update
     void Start()

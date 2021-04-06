@@ -16,18 +16,20 @@ public abstract class TileMask : MonoBehaviour {
         }
     }
 
+    public bool canErase {
+        get { return maskLifeCounter > 0; }
+    }
 
     public TileMaskType maskType;
     public int maskLifeCounter;
     // public TileMaskResponseType responseType;
-    public bool canErase;
     public int EraseId;
     public bool isDestroying = false;
 
     public delegate void TileMaskDestoryEvent(TileMask tileMask);
     public event TileMaskDestoryEvent notifyTileMaskDestroy;
 
-
+   
     public bool CanMoveTile() {
         return maskType == TileMaskType.None || maskLifeCounter == 0;
     }

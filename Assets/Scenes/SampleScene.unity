@@ -512,6 +512,7 @@ MonoBehaviour:
   heightBorder: 1
   tilePrefab: {fileID: 1070834696092337965, guid: 7f7253866a7fa9841a8736126d3b43b2, type: 3}
   gamePieceTypes: 05000000020000000800000007000000
+  m_liveMasks: []
 --- !u!4 &827381286
 Transform:
   m_ObjectHideFlags: 0
@@ -563,8 +564,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -131.07, y: 275.41}
-  m_SizeDelta: {x: 59.49, y: 41.41}
+  m_AnchoredPosition: {x: -86.56, y: 203.04}
+  m_SizeDelta: {x: 51.17, y: 23.94}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1049780024
 MonoBehaviour:
@@ -612,7 +613,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1049780027}
         m_TargetAssemblyTypeName: TestButtonContoller, Assembly-CSharp
-        m_MethodName: TestFindAllLink
+        m_MethodName: MoveRightDown
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

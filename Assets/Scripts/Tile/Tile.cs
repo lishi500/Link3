@@ -7,6 +7,7 @@ public class Tile : MonoBehaviour
     public int xIndex;
     public int yIndex;
     public bool visited = false;
+    public bool isReserved;
 
     // ----- restriction
 
@@ -47,11 +48,15 @@ public class Tile : MonoBehaviour
         }
     }
 
-    private void TriggerNeighbourTileMask() { 
+    public void TriggerNeighbourTileMask() {
         if (m_board.hasMasks) {
             List<Tile> neighbours = TileUtils.Instance.GetSurroundingTiles(this);
             neighbours.ForEach(tile => tile.TriggerTileMask());
         }
+    }
+
+    public bool HasMask() {
+        return tileMask != null;
     }
 
     private void OnMouseDown() {
@@ -69,6 +74,7 @@ public class Tile : MonoBehaviour
 
     private void OnMouseUpAsButton()
     {
+        m_board.ClearGamePiece(piece);
         //AutoLinkSkill autoLink = new AutoLinkSkill();
         //autoLink.Init(this);
         //autoLink.Cast();

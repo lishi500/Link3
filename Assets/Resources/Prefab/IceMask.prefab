@@ -95,8 +95,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 562324bbbb2f9c245a29866f452deb1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maskedTile: {fileID: 0}
   maskType: 1
-  maskLifeCounter: 2
-  canErase: 0
+  maskLifeCounter: 10
   EraseId: 0
   isDestroying: 0

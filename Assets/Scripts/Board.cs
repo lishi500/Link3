@@ -9,10 +9,8 @@ public class Board : MonoBehaviour
     public int height;
     public int widthBorder = 1;
 
-
     public int heightBorder = 1;
     public const float MOVE_TIME = 0.3f;
-
 
     public GameObject tilePrefab;
     public PieceType[] gamePieceTypes;
@@ -23,15 +21,15 @@ public class Board : MonoBehaviour
     }
 
     // -------------------- Private members --------------
-
     Tile[,] m_allTiles;
     GamePiece[,] m_allGamePieces;
 
     List<Tile> m_selectedTile;
-    List<TileMask> m_liveMasks;
+    public List<TileMask> m_liveMasks;
     bool m_isSelecting = false;
     bool m_isReleaseing = false;
     // first tile to Select
+
     public void ClickTile(Tile tile)
     {
         if (!m_isSelecting && !m_isReleaseing) {
@@ -95,44 +93,95 @@ public class Board : MonoBehaviour
             ClearGamePiece(piece);
             yield return new WaitForSeconds(0.2f);
         }
-        CollapsePieces();
+        CollapseAndFillPieces();
     }
 
-    void CalculateScore(List<Tile> tiles)
-    {
+    void CalculateScore(List<Tile> tiles) {
         int sum = 0;
         for (int i = 1; i < tiles.Count + 1; i++) {
             sum += i;
         }
         GameManager.Instance.AddScore(sum);
-
     }
 
-    public void CollapsePieces()
+    public void CollapseAndFillPieces() {
+        StraightCollapsePieces();
+    }
+
+    void StraightCollapsePieces()
     {
         for (int i = 0; i < width; i++)
         {
-            int movingDownStep = 0;
-            for (int j = 0; j < height; j++)
-            {
-                Tile tile = m_allTiles[i, j];
-                GamePiece piece = tile.piece;
-                if (piece == null)
-                {
-                    movingDownStep++;
+            CollapseColumn(i);
+            
+        }
+    }
+
+    private void CollapseColumn(int x) {
+        if (IsColumnHasMask(x)) {
+            CollapseColumnWithMask(x);
+        } else {
+            CollapseColumnWithRange(x, 0, height, true);
+        }
+    }
+
+    private void CollapseColumnWithMask(int x) {
+        int start = 0;
+        int end = 0;
+
+        while (end < height) {
+
+            if (GetTile(x, start).HasMask()) {
+                start += 1;
+                end = start;
+            } else {
+                end += 1;
+                if (end == height) {
+                    CollapseColumnWithRange(x, start, end, true);
+                    break;
                 }
-                else if (movingDownStep > 0) {
-                    piece.MoveDown(movingDownStep);
-                }
-            }
-            if (movingDownStep > 0) {
-                //Debug.Log("Fill " + movingDownStep);
-                for (int k = height - movingDownStep; k < height; k++) {
-                    //Debug.Log("(" + i + "," + k+") offSet:" + movingDownStep );
-                    FillOnePiece(i, k, gamePieceTypes[Random.Range(0, gamePieceTypes.Length)], movingDownStep);
+                if (GetTile(x, end).HasMask()) { 
+                    CollapseColumnWithRange(x, start, end, false);
+                    start = end;
                 }
             }
         }
+    }
+
+    private void CollapseColumnWithRange(int x, int yFrom, int yTo, bool shouldFill) {
+        int movingDownStep = 0;
+        for (int y = yFrom; y < yTo; y++) {
+            Tile tile = GetTile(x, y);
+            GamePiece piece = tile.piece;
+            if (piece == null) {
+                movingDownStep++;
+            } else if (movingDownStep > 0) {
+                piece.MoveDown(movingDownStep);
+            }
+        }
+        if (movingDownStep > 0 && shouldFill) {
+            for (int k = height - movingDownStep; k < height; k++) {
+                FillOnePiece(x, k, gamePieceTypes[Random.Range(0, gamePieceTypes.Length)], movingDownStep);
+            }
+        }
+    }
+
+    private bool IsColumnHasMask(int x) { 
+        for (int i = 0; i < height; i++) {
+            if (m_allTiles[x, i].HasMask()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int FindNextMaskInColumn(int x, int y) {
+        for (int i = y; i < height; i++) {
+            if (m_allTiles[x, i].HasMask()) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     void LogSelectedList() {
@@ -159,6 +208,7 @@ public class Board : MonoBehaviour
             }
         }
     }
+
     void RemoveTileSelected(Tile tile) {
         if (m_selectedTile.Contains(tile)) {
             tile.OnTileUnselected();
@@ -188,6 +238,7 @@ public class Board : MonoBehaviour
             if (IsWithinBounds(x, y)) { 
                 m_allGamePieces[x, y] = gamePiece;
                 m_allTiles[x, y].piece = gamePiece;
+                m_allTiles[x, y].isReserved = false;
                 if (yOffSet > 0) {
                     // clear offset
                     gamePiece.MoveDown(0);
@@ -224,7 +275,7 @@ public class Board : MonoBehaviour
         return null;
     }
 
-    void ClearGamePiece(GamePiece piece) {
+    public void ClearGamePiece(GamePiece piece) {
         if (piece != null)
         {
             m_allGamePieces[piece.xIndex, piece.yIndex] = null;
@@ -268,7 +319,23 @@ public class Board : MonoBehaviour
         m_liveMasks = new List<TileMask>();
         SetupTiles();
         FillAllRandomPieces();
+        ApplyTileMask(GetTile(1, 3), TileMaskType.Ice);
+        ApplyTileMask(GetTile(4, 5), TileMaskType.Ice);
     }
 
-   
+    private void TestFunction() {
+        //GetTile(5, 6).piece.MoveRightDown();
+        //GetTile(3, 1).piece.MoveRightDown();
+    }
+
+    int delayAction = 5;
+    float delayTimer = 0;
+    bool isDelayActionTriggered = false;
+    void Update() {
+        delayTimer += Time.deltaTime;
+        if (delayTimer >= delayAction && !isDelayActionTriggered) {
+            isDelayActionTriggered = true;
+            TestFunction();
+        }
+    }
 }

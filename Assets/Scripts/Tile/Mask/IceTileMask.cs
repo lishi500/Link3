@@ -10,15 +10,12 @@ public class IceTileMask : TileMask
     }
 
     public override void EraseOnce() {
-        maskLifeCounter = 0;
-        ClearMask();
+        maskLifeCounter -= 1;
+        if (maskLifeCounter == 0) { 
+            ClearMask();
+        }
     }
 
     public override void OnRoundEnd() {
-    }
-
-    private void Awake() {
-        maskType = TileMaskType.Ice;
-        maskLifeCounter = 2;
     }
 }
