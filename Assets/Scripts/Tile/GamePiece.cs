@@ -88,8 +88,19 @@ public class GamePiece : MonoBehaviour
         }
     }
 
+    private void ReserveNextTile(int x, int y) {
+        Tile tile = m_board.GetTile(x, y);
+        Tile currentTile = m_board.GetTile(xIndex, yIndex);
+        if (tile != null) {
+            tile.isReserved = true;
+        }
+        if (currentTile != null) {
+            currentTile.piece = null;
+        }
+    }
 
     IEnumerator MoveRoutine(Vector3 destination, float timeToMove) {
+        ReserveNextTile((int) destination.x, (int) destination.y);
         //Vector3 startPos = new Vector3(transform.position.x, transform.position.y + yOffSet);
         Vector3 startPos = transform.position;
         yOffSet = 0;
@@ -115,7 +126,6 @@ public class GamePiece : MonoBehaviour
             yield return null;
         }
         m_isMoving = false;
-
     }
 
     private Tile GetTile() {

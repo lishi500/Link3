@@ -11,6 +11,7 @@ public class Board : MonoBehaviour
 
     public int heightBorder = 1;
     public const float MOVE_TIME = 0.3f;
+    public const float DIAGONAL_MOVE_TIME = 0.15f;
 
     public GameObject tilePrefab;
     public PieceType[] gamePieceTypes;
@@ -93,7 +94,7 @@ public class Board : MonoBehaviour
             ClearGamePiece(piece);
             yield return new WaitForSeconds(0.2f);
         }
-        CollapseAndFillPieces();
+        StartCoroutine(CollapseAndFillPieces());
     }
 
     void CalculateScore(List<Tile> tiles) {
@@ -104,8 +105,21 @@ public class Board : MonoBehaviour
         GameManager.Instance.AddScore(sum);
     }
 
-    public void CollapseAndFillPieces() {
-        StraightCollapsePieces();
+    public IEnumerator CollapseAndFillPieces() {
+        bool completed = false;
+        while (!completed) {
+            StraightCollapsePieces();
+            yield return new WaitForSeconds(MOVE_TIME);
+            DiagonalCollapsePieces();
+            yield return new WaitForSeconds(DIAGONAL_MOVE_TIME + 0.05f);
+
+            completed = IsCollapseCompleted();
+            if (!completed) {
+                Debug.Log("not completed");
+            }
+        }
+        
+
     }
 
     void StraightCollapsePieces()
@@ -113,10 +127,81 @@ public class Board : MonoBehaviour
         for (int i = 0; i < width; i++)
         {
             CollapseColumn(i);
-            
         }
     }
 
+    void DiagonalCollapsePieces() {
+        for (int i = 0; i < width; i++) {
+            CollapseEmptyTileBelowMaskInColumn(i);
+        }
+    }
+
+    void CollapseEmptyTileBelowMaskInColumn(int x) {
+        for (int i = 0; i < height; i++) {
+            Tile nextTile = GetTile(x, i);
+            if (nextTile.piece == null && !nextTile.isReserved && IsColumnRangeHasMask(x, i + 1, height)) {
+                Tile leftTopTile = GetTile(x - 1, i + 1);
+                Tile rightTopTile = GetTile(x + 1, i + 1);
+                if (leftTopTile.CanLink() && !leftTopTile.isReserved) {
+                    BorrowPiecesDiagonally(nextTile, leftTopTile);
+                } else if (rightTopTile.CanLink() && !rightTopTile.isReserved) { 
+                    BorrowPiecesDiagonally(nextTile, rightTopTile);
+                }
+            }
+        }
+    }
+
+    void BorrowPiecesDiagonally(Tile original, Tile lender) {
+        if (original.piece == null && lender.CanLink()) {
+            lender.piece.Move(original.xIndex, original.yIndex, DIAGONAL_MOVE_TIME);
+            ChainMoveDown(lender.xIndex, lender.yIndex);
+        }
+    }
+
+    void ChainMoveDown(int startX, int startY) {
+        for (int i = startY; i < height - 1; i++) {
+            Tile currentTile = GetTile(startX, i);
+            if (currentTile.piece == null && !currentTile.isReserved) {
+                Tile nextTile = GetTile(startX, i + 1);
+                if (nextTile.CanLink()) {
+                    nextTile.piece.MoveDown(1);
+                }
+            }
+
+            if (i + 2 == height) { 
+                Tile ceillingTile = GetTile(startX, height - 1);
+                if (ceillingTile.piece == null) {
+                    FillOnePiece(startX, height - 1, gamePieceTypes[Random.Range(0, gamePieceTypes.Length)], 1);
+                }
+            }
+        }
+    }
+
+    private bool IsCollapseCompleted() {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                if (GetTile(i, j).piece == null) {
+                    // check top tile
+                    if (GetTile(i, j + 1) != null && GetTile(i, j + 1).CanLink()) {
+                        return false;
+                    }
+
+                    if (IsColumnRangeHasMask(i, j + 1, height)) {
+                        // check top left tile
+                        if (GetTile(i - 1, j + 1) != null && GetTile(i - 1, j + 1).CanLink()) {
+                            return false;
+                        }
+                        // check top right tile
+                        if (GetTile(i + 1, j + 1) != null && GetTile(i + 1, j + 1).CanLink()) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
     private void CollapseColumn(int x) {
         if (IsColumnHasMask(x)) {
             CollapseColumnWithMask(x);
@@ -130,7 +215,6 @@ public class Board : MonoBehaviour
         int end = 0;
 
         while (end < height) {
-
             if (GetTile(x, start).HasMask()) {
                 start += 1;
                 end = start;
@@ -159,6 +243,7 @@ public class Board : MonoBehaviour
                 piece.MoveDown(movingDownStep);
             }
         }
+        // TODO logic error, need fix
         if (movingDownStep > 0 && shouldFill) {
             for (int k = height - movingDownStep; k < height; k++) {
                 FillOnePiece(x, k, gamePieceTypes[Random.Range(0, gamePieceTypes.Length)], movingDownStep);
@@ -166,8 +251,12 @@ public class Board : MonoBehaviour
         }
     }
 
-    private bool IsColumnHasMask(int x) { 
-        for (int i = 0; i < height; i++) {
+    private bool IsColumnHasMask(int x) {
+        return IsColumnRangeHasMask(x, 0, height);
+    }
+
+    private bool IsColumnRangeHasMask(int x, int yFrom, int yTo) {
+        for (int i = yFrom; i < yTo; i++) {
             if (m_allTiles[x, i].HasMask()) {
                 return true;
             }
@@ -320,6 +409,8 @@ public class Board : MonoBehaviour
         SetupTiles();
         FillAllRandomPieces();
         ApplyTileMask(GetTile(1, 3), TileMaskType.Ice);
+        ApplyTileMask(GetTile(2, 3), TileMaskType.Ice);
+        ApplyTileMask(GetTile(3, 3), TileMaskType.Ice);
         ApplyTileMask(GetTile(4, 5), TileMaskType.Ice);
     }
 

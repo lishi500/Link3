@@ -49,7 +49,7 @@ public abstract class TileMask : MonoBehaviour {
             isDestroying = true;
 
             while (!reachTarget) {
-                if (Mathf.Abs(startAlpha - targetAlpha) < 0.05f) {
+                if (targetAlpha < 0.05f) {
                     reachTarget = true;
                     if (notifyTileMaskDestroy != null) {
                         notifyTileMaskDestroy(this);

@@ -31,6 +31,9 @@ public class Tile : MonoBehaviour
         if (tileMask != null && !tileMask.CanMoveTile()) {
             return false;
         }
+        if (piece == null) {
+            return false;
+        }
 
         return true;
     }
