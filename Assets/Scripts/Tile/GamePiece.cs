@@ -30,27 +30,27 @@ public class GamePiece : MonoBehaviour
         GetComponent<SpriteRenderer>().color = color;
     }
 
-    public void Move(int destX, int dextY, float timeToMove) {
+    public void Move(int destX, int dextY, float timeToMove = Board.MOVE_TIME) {
         if (!m_isMoving) { 
             StartCoroutine(MoveRoutine(new Vector3(destX, dextY), timeToMove));
         }
     }
 
-    public void MoveDown(int unit) {
+    public void MoveDown(int unit, float timeToMove = Board.MOVE_TIME) {
         if (!m_isMoving) { 
-            StartCoroutine(MoveRoutine(new Vector3(xIndex, yIndex-unit, 0), Board.MOVE_TIME));
+            StartCoroutine(MoveRoutine(new Vector3(xIndex, yIndex-unit, 0), timeToMove));
         }
     }
 
-    public void MoveLeftDown() {
+    public void MoveLeftDown(float timeToMove = Board.MOVE_TIME) {
         if (!m_isMoving) {
-            StartCoroutine(MoveRoutine(new Vector3(xIndex - 1, yIndex - 1, 0), Board.MOVE_TIME));
+            StartCoroutine(MoveRoutine(new Vector3(xIndex - 1, yIndex - 1, 0), timeToMove));
         }
     }
 
-    public void MoveRightDown() {
+    public void MoveRightDown(float timeToMove = Board.MOVE_TIME) {
         if (!m_isMoving) {
-            StartCoroutine(MoveRoutine(new Vector3(xIndex + 1, yIndex - 1, 0), Board.MOVE_TIME));
+            StartCoroutine(MoveRoutine(new Vector3(xIndex + 1, yIndex - 1, 0), timeToMove));
         }
     }
 

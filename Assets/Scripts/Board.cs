@@ -10,7 +10,7 @@ public class Board : MonoBehaviour
     public int widthBorder = 1;
 
     public int heightBorder = 1;
-    public const float MOVE_TIME = 0.3f;
+    public const float MOVE_TIME = 0.2f;
     public const float DIAGONAL_MOVE_TIME = 0.15f;
 
     public GameObject tilePrefab;
@@ -164,14 +164,14 @@ public class Board : MonoBehaviour
             if (currentTile.piece == null && !currentTile.isReserved) {
                 Tile nextTile = GetTile(startX, i + 1);
                 if (nextTile.CanLink()) {
-                    nextTile.piece.MoveDown(1);
+                    nextTile.piece.MoveDown(1, DIAGONAL_MOVE_TIME);
                 }
             }
 
-            if (i + 2 == height) { 
+            if (i + 2 == height) {
                 Tile ceillingTile = GetTile(startX, height - 1);
                 if (ceillingTile.piece == null) {
-                    FillOnePiece(startX, height - 1, gamePieceTypes[Random.Range(0, gamePieceTypes.Length)], 1);
+                    FillOnePiece(startX, height - 1, gamePieceTypes[Random.Range(0, gamePieceTypes.Length)], 1, DIAGONAL_MOVE_TIME);
                 }
             }
         }
@@ -234,6 +234,7 @@ public class Board : MonoBehaviour
 
     private void CollapseColumnWithRange(int x, int yFrom, int yTo, bool shouldFill) {
         int movingDownStep = 0;
+        int rangeHeight = yTo - yFrom;
         for (int y = yFrom; y < yTo; y++) {
             Tile tile = GetTile(x, y);
             GamePiece piece = tile.piece;
@@ -245,7 +246,7 @@ public class Board : MonoBehaviour
         }
         // TODO logic error, need fix
         if (movingDownStep > 0 && shouldFill) {
-            for (int k = height - movingDownStep; k < height; k++) {
+            for (int k = (rangeHeight + yFrom) - movingDownStep; k < (rangeHeight + yFrom); k++) {
                 FillOnePiece(x, k, gamePieceTypes[Random.Range(0, gamePieceTypes.Length)], movingDownStep);
             }
         }
@@ -319,7 +320,7 @@ public class Board : MonoBehaviour
         }
     }
 
-    public void PlaceGamePiece(GamePiece gamePiece, int x, int y, int yOffSet = 0) {
+    public void PlaceGamePiece(GamePiece gamePiece, int x, int y, int yOffSet = 0, float offSetMoveTime = MOVE_TIME) {
         if (gamePiece != null) {
             gamePiece.transform.position = new Vector3(x, y + yOffSet, 0);
             gamePiece.transform.rotation = Quaternion.identity;
@@ -330,7 +331,7 @@ public class Board : MonoBehaviour
                 m_allTiles[x, y].isReserved = false;
                 if (yOffSet > 0) {
                     // clear offset
-                    gamePiece.MoveDown(0);
+                    gamePiece.MoveDown(0, offSetMoveTime);
                 }
             }
         }
@@ -377,11 +378,11 @@ public class Board : MonoBehaviour
         return x >= 0 && x < width && y >= 0 && y < height;
     }
 
-    void FillOnePiece(int x, int y, PieceType type, int yOffset = 0) {
+    void FillOnePiece(int x, int y, PieceType type, int yOffset = 0, float yOffsetMoveTime = MOVE_TIME) {
         GamePiece gamePiece = PieceUtil.Instance.GenerateGamePieceByType(type);
         gamePiece.Init(this);
         gamePiece.gameObject.transform.parent = transform;
-        PlaceGamePiece(gamePiece, x, y, yOffset);
+        PlaceGamePiece(gamePiece, x, y, yOffset, yOffsetMoveTime);
     }
     void FillAllRandomPieces() {
         for (int i = 0; i < width; i++) {
